@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fun KG Mathematics Quiz 🌟</title>
+    <!-- Tailwind CSS for utility styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for friendly icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Fredoka & Quicksand for playful typography -->
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Canvas Confetti Library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <style>
+        body {
+            font-family: 'Fredoka', cursive, sans-serif;
+            background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 100%);
+            min-height: 100vh;
+            user-select: none;
+        }
+
+        .font-body {
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .bubble-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border: 4px solid #FFF;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            border-radius: 2rem;
+        }
+
+        .btn-bounce {
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .btn-bounce:hover {
+            transform: scale(1.04) translateY(-4px);
+        }
+
+        .btn-bounce:active {
+            transform: scale(0.96) translateY(2px);
+        }
+
+        .option-card {
+            transition: all 0.25s ease;
+            border: 4px solid #E5E7EB;
+        }
+
+        .option-card:hover {
+            border-color: #3B82F6;
+            background-color: #EFF6FF;
+            transform: translateY(-2px);
+        }
+
+        .option-card.selected {
+            border-color: #8B5CF6;
+            background-color: #F3E8FF;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.3);
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(3deg); }
+        }
+
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        .animate-pulse-slow {
+            animation: pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+
+        /* Custom scrollbar for review section */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #F3F4F6;
+            border-radius: 10px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #FCD34D;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center p-3 sm:p-6 text-gray-800">
+
+    <div id="app" class="w-full max-w-3xl my-auto">
+        
+        <!-- ================= WELCOME SCREEN ================= -->
+        <div id="welcome-screen" class="bubble-card p-6 sm:p-10 text-center animate-float">
+            <div class="text-6xl sm:text-7xl mb-4">🎈 🎨 🔢</div>
+            <h1 class="text-3xl sm:text-5xl font-bold text-indigo-600 mb-3 tracking-wide">
+                Fun Maths Adventure!
+            </h1>
+            <p class="font-body text-lg sm:text-xl text-gray-600 mb-6 font-semibold">
+                Welcome little genius! Are you ready to play with numbers? 🌟
+            </p>
+
+            <div class="max-w-md mx-auto mb-8">
+                <label for="child-name" class="block text-left text-sm font-bold text-gray-700 mb-2 ml-2">
+                    What is your name?
+                </label>
+                <div class="relative">
+                    <input type="text" id="child-name" placeholder="Type your name here... 😀" 
+                        class="w-full text-xl px-6 py-4 rounded-2xl border-4 border-yellow-300 focus:border-indigo-400 focus:outline-none shadow-inner text-center font-bold text-indigo-800 placeholder-gray-400">
+                    <span class="absolute right-4 top-4 text-2xl">✏️</span>
+                </div>
+            </div>
+
+            <button onclick="startQuiz()" class="btn-bounce bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white font-bold text-2xl px-10 py-5 rounded-full shadow-lg border-b-8 border-green-600 flex items-center justify-center mx-auto space-x-3">
+                <span>START QUIZ</span>
+                <i class="fa-solid fa-play"></i>
+            </button>
+        </div>
+
+        <!-- ================= QUIZ QUESTION SCREEN ================= -->
+        <div id="quiz-screen" class="bubble-card p-6 sm:p-8 hidden">
+            <!-- Header & Progress -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-4 mb-6">
+                <div class="flex items-center space-x-3">
+                    <span id="player-display" class="bg-indigo-100 text-indigo-700 font-bold px-4 py-2 rounded-full text-lg shadow-sm">
+                        👤 Superstar
+                    </span>
+                    <span id="progress-text" class="bg-yellow-100 text-yellow-800 font-bold px-4 py-2 rounded-full text-lg shadow-sm">
+                        Question 1 of 10
+                    </span>
+                </div>
+                <!-- Progress Bar -->
+                <div class="w-full sm:w-48 bg-gray-200 h-5 rounded-full overflow-hidden p-1 border-2 border-white shadow-inner">
+                    <div id="progress-bar" class="bg-gradient-to-r from-pink-500 to-purple-500 h-full rounded-full transition-all duration-300" style="width: 10%"></div>
+                </div>
+            </div>
+
+            <!-- Question Box -->
+            <div class="bg-gradient-to-r from-blue-50 to-indigo-50 border-3 border-indigo-200 rounded-3xl p-6 sm:p-8 mb-6 text-center shadow-sm">
+                <h2 id="question-text" class="text-2xl sm:text-3xl font-bold text-indigo-900 mb-4 leading-snug">
+                    Question text goes here...
+                </h2>
+                <!-- Visual Display Container for Emojis/Shapes -->
+                <div id="visual-container" class="text-4xl sm:text-6xl my-4 tracking-wider flex flex-wrap justify-center items-center gap-2 min-h-[70px]">
+                    <!-- Emojis populated dynamically -->
+                </div>
+            </div>
+
+            <!-- Answer Options Grid -->
+            <div id="options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                <!-- Option Cards will be injected dynamically -->
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex justify-between items-center pt-2">
+                <button id="prev-btn" onclick="previousQuestion()" class="btn-bounce bg-gray-200 hover:bg-gray-300 text-gray-700 font-bold text-xl px-6 py-3 rounded-2xl border-b-4 border-gray-400 flex items-center space-x-2">
+                    <i class="fa-solid fa-arrow-left"></i>
+                    <span>Back</span>
+                </button>
+
+                <button id="next-btn" onclick="nextQuestion()" class="btn-bounce bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-bold text-xl px-8 py-3 rounded-2xl border-b-4 border-indigo-800 flex items-center space-x-2">
+                    <span id="next-btn-text">Next</span>
+                    <i id="next-btn-icon" class="fa-solid fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- ================= RESULTS SCREEN ================= -->
+        <div id="result-screen" class="bubble-card p-6 sm:p-10 text-center hidden">
+            <div id="badge-icon" class="text-7xl mb-2 animate-bounce">🏆</div>
+            <h1 id="result-title" class="text-4xl sm:text-5xl font-bold text-indigo-700 mb-2">
+                Well Done!
+            </h1>
+            <p id="player-congrats" class="text-xl text-gray-600 font-body font-bold mb-6">
+                You completed the quiz!
+            </p>
+
+            <!-- Score Cards Container -->
+            <div class="grid grid-cols-2 gap-4 max-w-md mx-auto mb-6">
+                <div class="bg-yellow-100 border-3 border-yellow-300 rounded-2xl p-4">
+                    <span class="block text-gray-500 text-sm font-bold uppercase tracking-wider">Score</span>
+                    <span id="score-text" class="text-3xl sm:text-4xl font-extrabold text-yellow-700">0 / 10</span>
+                </div>
+                <div class="bg-purple-100 border-3 border-purple-300 rounded-2xl p-4">
+                    <span class="block text-gray-500 text-sm font-bold uppercase tracking-wider">Percentage</span>
+                    <span id="percentage-text" class="text-3xl sm:text-4xl font-extrabold text-purple-700">0%</span>
+                </div>
+            </div>
+
+            <!-- Encouragement Banner -->
+            <div id="encouragement-box" class="bg-green-100 border-2 border-green-300 text-green-800 p-4 rounded-2xl text-xl font-bold mb-8 shadow-sm">
+                Superstar Mathematician! 🌟
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex flex-col sm:flex-row justify-center gap-4 mb-8">
+                <button onclick="toggleReview()" class="btn-bounce bg-blue-500 hover:bg-blue-600 text-white font-bold text-xl px-8 py-4 rounded-2xl border-b-4 border-blue-700 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                    <span>Review Answers</span>
+                </button>
+                <button onclick="restartQuiz()" class="btn-bounce bg-gradient-to-r from-green-400 to-emerald-500 hover:from-green-500 hover:to-emerald-600 text-white font-bold text-xl px-8 py-4 rounded-2xl border-b-4 border-green-700 flex items-center justify-center space-x-2">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Try Again</span>
+                </button>
+            </div>
+
+            <!-- Review Section (Hidden by default) -->
+            <div id="review-container" class="hidden text-left border-t-4 border-dashed border-gray-200 pt-6 mt-6">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4 text-center">
+                    📋 Let's Check Your Answers!
+                </h3>
+                <div id="review-list" class="space-y-4 max-h-96 overflow-y-auto pr-2">
+                    <!-- Injected dynamically -->
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // Web Audio API Sound Generator for Kid-Friendly SFX
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playSound(type) {
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, audioCtx.currentTime);
+                osc.frequency.exponentialRampToValueAtTime(800, audioCtx.currentTime + 0.08);
+                gain.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.08);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.08);
+            } else if (type === 'select') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+                osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.05); // E5
+                gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.12);
+            } else if (type === 'win') {
+                const notes = [523.25, 659.25, 783.99, 1046.50]; // C5, E5, G5, C6
+                notes.forEach((freq, index) => {
+                    const noteOsc = audioCtx.createOscillator();
+                    const noteGain = audioCtx.createGain();
+                    noteOsc.connect(noteGain);
+                    noteGain.connect(audioCtx.destination);
+                    noteOsc.type = 'sine';
+                    noteOsc.frequency.setValueAtTime(freq, audioCtx.currentTime + index * 0.1);
+                    noteGain.gain.setValueAtTime(0.2, audioCtx.currentTime + index * 0.1);
+                    noteGain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + index * 0.1 + 0.25);
+                    noteOsc.start(audioCtx.currentTime + index * 0.1);
+                    noteOsc.stop(audioCtx.currentTime + index * 0.1 + 0.25);
+                });
+            }
+        }
+
+        // Quiz Questions Data (10 Questions, strictly increasing in difficulty)
+        const quizData = [
+            {
+                id: 1,
+                title: "1. Counting Objects",
+                question: "How many apples are there?",
+                visual: "🍎 🍎 🍎",
+                options: [
+                    { label: "A", text: "2" },
+                    { label: "B", text: "3" },
+                    { label: "C", text: "4" },
+                    { label: "D", text: "5" }
+                ],
+                correct: "B",
+                explanation: "There are 3 apples! Count them: 1, 2, 3! 🍎"
+            },
+            {
+                id: 2,
+                title: "2. Number Recognition",
+                question: "Which one is the number 5?",
+                visual: "❓",
+                options: [
+                    { label: "A", text: "3" },
+                    { label: "B", text: "2" },
+                    { label: "C", text: "5" },
+                    { label: "D", text: "8" }
+                ],
+                correct: "C",
+                explanation: "Option C is the number 5! ✋"
+            },
+            {
+                id: 3,
+                title: "3. Basic Shapes",
+                question: "Which shape is a Circle?",
+                visual: "⭕️",
+                options: [
+                    { label: "A", text: "🔴 Circle" },
+                    { label: "B", text: "⬛ Square" },
+                    { label: "C", text: "🔺 Triangle" },
+                    { label: "D", text: "⭐️ Star" }
+                ],
+                correct: "A",
+                explanation: "The red circle 🔴 is round and has no straight corners!"
+            },
+            {
+                id: 4,
+                title: "4. Comparing Numbers",
+                question: "Which group has MORE stars?",
+                visual: "✨",
+                options: [
+                    { label: "A", text: "⭐ ⭐" },
+                    { label: "B", text: "⭐ ⭐ ⭐ ⭐ ⭐" },
+                    { label: "C", text: "⭐" },
+                    { label: "D", text: "⭐ ⭐ ⭐" }
+                ],
+                correct: "B",
+                explanation: "Group B has 5 stars, which is more than all the other groups!"
+            },
+            {
+                id: 5,
+                title: "5. Pattern Recognition",
+                question: "What comes next in the pattern?",
+                visual: "🔴 🔵 🔴 🔵 ❓",
+                options: [
+                    { label: "A", text: "🟢 Green" },
+                    { label: "B", text: "🔴 Red" },
+                    { label: "C", text: "🟡 Yellow" },
+                    { label: "D", text: "🔵 Blue" }
+                ],
+                correct: "B",
+                explanation: "Red comes next! The pattern repeats: Red, Blue, Red, Blue, RED! 🔴"
+            },
+            {
+                id: 6,
+                title: "6. Addition within 5",
+                question: "How many balloons altogether?",
+                visual: "🎈 🎈   +   🎈   =",
+                options: [
+                    { label: "A", text: "2" },
+                    { label: "B", text: "3" },
+                    { label: "C", text: "4" },
+                    { label: "D", text: "5" }
+                ],
+                correct: "B",
+                explanation: "2 balloons + 1 balloon = 3 balloons altogether! 🎈"
+            },
+            {
+                id: 7,
+                title: "7. Subtraction within 5",
+                question: "You have 4 fish 🐟 🐟 🐟 🐟. 1 swims away. How many are left?",
+                visual: "🐟 🐟 🐟 🏊‍♂️",
+                options: [
+                    { label: "A", text: "3" },
+                    { label: "B", text: "2" },
+                    { label: "C", text: "4" },
+                    { label: "D", text: "1" }
+                ],
+                correct: "A",
+                explanation: "4 minus 1 equals 3! 3 little fish are left swimming! 🐟"
+            },
+            {
+                id: 8,
+                title: "8. Addition up to 10",
+                question: "3 stars plus 3 stars is how many?",
+                visual: "⭐ ⭐ ⭐   +   ⭐ ⭐ ⭐",
+                options: [
+                    { label: "A", text: "5" },
+                    { label: "B", text: "6" },
+                    { label: "C", text: "7" },
+                    { label: "D", text: "4" }
+                ],
+                correct: "B",
+                explanation: "3 + 3 = 6! Count them all: 1, 2, 3, 4, 5, 6! ⭐"
+            },
+            {
+                id: 9,
+                title: "9. Number Sequence",
+                question: "Which number is missing?",
+                visual: "1 , 2 , 3 , ❓ , 5",
+                options: [
+                    { label: "A", text: "6" },
+                    { label: "B", text: "4" },
+                    { label: "C", text: "0" },
+                    { label: "D", text: "2" }
+                ],
+                correct: "B",
+                explanation: "The missing number is 4! We count: 1, 2, 3, 4, 5! 🎉"
+            },
+            {
+                id: 10,
+                title: "10. Counting Quantities",
+                question: "Count the cars 🚗. How many cars are there?",
+                visual: "🚗 🚗 🚗 🚗",
+                options: [
+                    { label: "A", text: "3" },
+                    { label: "B", text: "5" },
+                    { label: "C", text: "4" },
+                    { label: "D", text: "2" }
+                ],
+                correct: "C",
+                explanation: "There are 4 cars! Vroom vroom! 🚗"
+            }
+        ];
+
+        // State variables
+        let currentQuestionIndex = 0;
+        let selectedAnswers = new Array(quizData.length).fill(null);
+        let playerName = "Little Genius";
+
+        // DOM Element references
+        const welcomeScreen = document.getElementById('welcome-screen');
+        const quizScreen = document.getElementById('quiz-screen');
+        const resultScreen = document.getElementById('result-screen');
+        
+        const childNameInput = document.getElementById('child-name');
+        const playerDisplay = document.getElementById('player-display');
+        const progressText = document.getElementById('progress-text');
+        const progressBar = document.getElementById('progress-bar');
+        
+        const questionText = document.getElementById('question-text');
+        const visualContainer = document.getElementById('visual-container');
+        const optionsGrid = document.getElementById('options-grid');
+        
+        const prevBtn = document.getElementById('prev-btn');
+        const nextBtn = document.getElementById('next-btn');
+        const nextBtnText = document.getElementById('next-btn-text');
+        const nextBtnIcon = document.getElementById('next-btn-icon');
+
+        function startQuiz() {
+            playSound('click');
+            const inputVal = childNameInput.value.trim();
+            if (inputVal !== "") {
+                playerName = inputVal;
+            }
+            playerDisplay.innerHTML = `👤 ${playerName}`;
+
+            welcomeScreen.classList.add('hidden');
+            quizScreen.classList.remove('hidden');
+
+            currentQuestionIndex = 0;
+            renderQuestion();
+        }
+
+        function renderQuestion() {
+            const q = quizData[currentQuestionIndex];
+
+            // Progress updates
+            progressText.innerText = `Question ${currentQuestionIndex + 1} of ${quizData.length}`;
+            const progressPercent = ((currentQuestionIndex + 1) / quizData.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+
+            // Text & Visuals
+            questionText.innerText = q.question;
+            visualContainer.innerText = q.visual;
+
+            // Render options
+            optionsGrid.innerHTML = '';
+            q.options.forEach(opt => {
+                const isSelected = selectedAnswers[currentQuestionIndex] === opt.label;
+                
+                const card = document.createElement('button');
+                card.type = 'button';
+                card.className = `option-card btn-bounce p-4 rounded-2xl flex items-center space-x-4 text-left w-full bg-white ${isSelected ? 'selected' : ''}`;
+                card.onclick = () => selectOption(opt.label);
+
+                card.innerHTML = `
+                    <span class="w-12 h-12 rounded-xl bg-indigo-100 text-indigo-700 font-bold text-xl flex items-center justify-center border-2 border-indigo-200 shrink-0">
+                        ${opt.label}
+                    </span>
+                    <span class="text-2xl font-bold text-gray-800 flex-grow">
+                        ${opt.text}
+                    </span>
+                    ${isSelected ? '<span class="text-2xl text-purple-600">🌟</span>' : ''}
+                `;
+                optionsGrid.appendChild(card);
+            });
+
+            // Navigation Button States
+            if (currentQuestionIndex === 0) {
+                prevBtn.classList.add('opacity-50', 'cursor-not-allowed');
+                prevBtn.disabled = true;
+            } else {
+                prevBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                prevBtn.disabled = false;
+            }
+
+            if (currentQuestionIndex === quizData.length - 1) {
+                nextBtnText.innerText = "Finish Quiz";
+                nextBtnIcon.className = "fa-solid fa-flag-checkered";
+                nextBtn.classList.remove('from-indigo-500', 'to-purple-600');
+                nextBtn.classList.add('from-green-500', 'to-emerald-600');
+            } else {
+                nextBtnText.innerText = "Next";
+                nextBtnIcon.className = "fa-solid fa-arrow-right";
+                nextBtn.classList.remove('from-green-500', 'to-emerald-600');
+                nextBtn.classList.add('from-indigo-500', 'to-purple-600');
+            }
+        }
+
+        function selectOption(label) {
+            playSound('select');
+            selectedAnswers[currentQuestionIndex] = label;
+            renderQuestion();
+        }
+
+        function nextQuestion() {
+            playSound('click');
+            if (currentQuestionIndex < quizData.length - 1) {
+                currentQuestionIndex++;
+                renderQuestion();
+            } else {
+                finishQuiz();
+            }
+        }
+
+        function previousQuestion() {
+            if (currentQuestionIndex > 0) {
+                playSound('click');
+                currentQuestionIndex--;
+                renderQuestion();
+            }
+        }
+
+        function finishQuiz() {
+            playSound('win');
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.remove('hidden');
+
+            // Calculate score
+            let score = 0;
+            quizData.forEach((q, idx) => {
+                if (selectedAnswers[idx] === q.correct) {
+                    score++;
+                }
+            });
+
+            const percentage = Math.round((score / quizData.length) * 100);
+
+            // Populate Score Display
+            document.getElementById('player-congrats').innerText = `Fantastic job, ${playerName}! 🎉`;
+            document.getElementById('score-text').innerText = `${score} / ${quizData.length}`;
+            document.getElementById('percentage-text').innerText = `${percentage}%`;
+
+            // Custom dynamic feedback
+            const encourageBox = document.getElementById('encouragement-box');
+            const badgeIcon = document.getElementById('badge-icon');
+
+            if (percentage === 100) {
+                encourageBox.innerText = "Superstar Mathematician! Perfect Score! 🌟👑";
+                badgeIcon.innerText = "🏆";
+                triggerConfetti();
+            } else if (percentage >= 70) {
+                encourageBox.innerText = "Great Job! You are so smart! 🚀✨";
+                badgeIcon.innerText = "🌟";
+                triggerConfetti();
+            } else if (percentage >= 50) {
+                encourageBox.innerText = "Good Effort! Keep practicing! 🎈👍";
+                badgeIcon.innerText = "👏";
+            } else {
+                encourageBox.innerText = "Nice try! Let's play again together! 💕";
+                badgeIcon.innerText = "🐥";
+            }
+
+            renderReviewSection();
+        }
+
+        function triggerConfetti() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 }
+                });
+            }
+        }
+
+        function renderReviewSection() {
+            const reviewList = document.getElementById('review-list');
+            reviewList.innerHTML = '';
+
+            quizData.forEach((q, idx) => {
+                const userAns = selectedAnswers[idx];
+                const isCorrect = userAns === q.correct;
+
+                const userOptObj = q.options.find(o => o.label === userAns);
+                const correctOptObj = q.options.find(o => o.label === q.correct);
+
+                const item = document.createElement('div');
+                item.className = `p-4 rounded-2xl border-2 ${isCorrect ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'}`;
+
+                item.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <span class="font-bold text-gray-800 text-lg">${q.title}</span>
+                        <span class="text-xl">${isCorrect ? '✅' : '❌'}</span>
+                    </div>
+                    <p class="text-gray-700 font-body mb-2">${q.question}</p>
+                    <div class="text-sm font-body space-y-1">
+                        <p class="${isCorrect ? 'text-green-700 font-bold' : 'text-red-600'}">
+                            <strong>Your Answer:</strong> ${userAns ? `${userAns}) ${userOptObj ? userOptObj.text : ''}` : 'Not Answered'}
+                        </p>
+                        ${!isCorrect ? `
+                            <p class="text-green-700 font-bold">
+                                <strong>Correct Answer:</strong> ${q.correct}) ${correctOptObj.text}
+                            </p>
+                        ` : ''}
+                        <p class="text-gray-500 italic mt-1 bg-white/60 p-2 rounded-xl">
+                            💡 ${q.explanation}
+                        </p>
+                    </div>
+                `;
+                reviewList.appendChild(item);
+            });
+        }
+
+        function toggleReview() {
+            playSound('click');
+            const reviewContainer = document.getElementById('review-container');
+            reviewContainer.classList.toggle('hidden');
+            if (!reviewContainer.classList.contains('hidden')) {
+                reviewContainer.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        function restartQuiz() {
+            playSound('click');
+            selectedAnswers = new Array(quizData.length).fill(null);
+            document.getElementById('review-container').classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            welcomeScreen.classList.remove('hidden');
+        }
+    </script>
+</body>
+</html>
